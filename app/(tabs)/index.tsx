@@ -4,7 +4,7 @@ import recipeData from "../../data.json";
 import { FlatList } from "react-native-gesture-handler";
 
 interface Recipe {
-  id: string;
+  _id: string;
   name: string;
   recipeName: string;
   recipeDetails: string;
@@ -12,16 +12,18 @@ interface Recipe {
 
 export default function HomeScreen() {
   const [recipes, setRecipe] = useState<Recipe[]>([]);
+
   useEffect(() => {
-    setRecipe(recipeData); // Set state directly from imported JSON
-    console.log(recipeData);
+    fetch("http://localhost:5000/addRecipes")
+      .then((res) => res.json())
+      .then((data) => setRecipe(data));
   }, []);
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Recipe List</Text>
       <FlatList
         data={recipes}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.title}>{item.recipeName}</Text>

@@ -1,10 +1,31 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View, TextInput, Button, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Button,
+  Alert,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
+import { FlatList } from "react-native-gesture-handler";
+
+//* define the types
+interface Recipe {
+  _id: string;
+  name: string;
+  recipeName: string;
+  recipeDetails: string;
+}
 
 export default function AddRecipe() {
   const [name, setName] = useState("");
   const [recipeName, setRecipeName] = useState("");
   const [recipeDetails, setRecipeDetails] = useState("");
+
+  const [getRecipes, setGetRecipes] = useState<Recipe[]>([]);
+  // const [getRecipes, setGetRecipes] = useState([]);
 
   const handleSubmit = async () => {
     const recipeData = {
@@ -12,7 +33,7 @@ export default function AddRecipe() {
       recipeName,
       recipeDetails,
     };
-
+    //  req.body
     console.log(recipeData);
     try {
       const response = await fetch("http://localhost:5000/addRecipes", {
@@ -38,10 +59,52 @@ export default function AddRecipe() {
       Alert.alert("Error", "Something went wrong!");
     }
   };
+  console.log(getRecipes);
 
+  //!this is called get method  this part is for the fetch the user posted data
+  const fetchRecipes = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/addRecipes");
+      const data = await response.json();
+      setGetRecipes(data);
+    } catch (error) {
+      console.error("Error fetching recipes:", error);
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const interval = setInterval(() => {
+      if (isMounted) {
+        fetchRecipes();
+      }
+    }, 2000); // Fetch every 2 seconds
+
+    // Initial fetch
+    fetchRecipes();
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await fetch(`http://localhost:5000/addRecipes/${id}`, {
+        method: "DELETE",
+      });
+      fetchRecipes(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+    }
+  };
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.heading}>Add Your Recipes</Text>
+
+      {/* Form Section */}
       <View style={styles.inputFiled}>
         <TextInput
           style={styles.input}
@@ -49,7 +112,6 @@ export default function AddRecipe() {
           value={name}
           onChangeText={setName}
         />
-
         <TextInput
           style={styles.input}
           placeholder="Recipe Name"
@@ -64,33 +126,76 @@ export default function AddRecipe() {
         onChangeText={setRecipeDetails}
         multiline
       />
-
       <Button title="Submit Recipe" onPress={handleSubmit} />
-    </View>
+
+      {/* Scrollable FlatList */}
+      {/*  this part is for the show the data to the ui  */}
+      <FlatList
+        data={getRecipes}
+        // keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.recipeCard}>
+            <Text style={styles.recipeTitle}>{item.recipeName}</Text>
+            <Text style={styles.recipeAuthor}>Name: {item.name}</Text>
+            <Text>{item.recipeDetails}</Text>
+
+            <TouchableOpacity
+              onPress={() => handleDelete(item._id)}
+              style={styles.deleteBtn}
+            >
+              <Text style={{ color: "white", textAlign: "center" }}>
+                Delete
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        style={{ marginTop: 20 }}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    marginTop: 40,
+    flex: 1, // important for FlatList to scroll
   },
   heading: {
-    fontSize: 24,
-    marginBottom: 20,
+    fontSize: 20,
     fontWeight: "bold",
-    textAlign: "center",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  inputFiled: {
+    marginBottom: 10,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
     padding: 10,
-    marginBottom: 15,
+    marginBottom: 10,
+    borderRadius: 8,
   },
-  inputFiled: {
-    flexDirection: "row",
-    gap: 10, // If gap doesn’t work in your RN version, use marginRight
-    marginBottom: 15,
+  recipeCard: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 10,
+  },
+  recipeTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  recipeAuthor: {
+    fontStyle: "italic",
+    color: "#555",
+    marginBottom: 5,
+  },
+  deleteBtn: {
+    backgroundColor: "#ff4d4d",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
   },
 });
