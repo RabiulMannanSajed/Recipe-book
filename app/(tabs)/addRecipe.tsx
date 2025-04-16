@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
-  Text,
   View,
   TextInput,
   Button,
   Alert,
   TouchableOpacity,
   SafeAreaView,
+  Text,
 } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //* define the types
 interface Recipe {
@@ -25,15 +26,16 @@ export default function AddRecipe() {
   const [recipeDetails, setRecipeDetails] = useState("");
 
   const [getRecipes, setGetRecipes] = useState<Recipe[]>([]);
-  // const [getRecipes, setGetRecipes] = useState([]);
+  const storedName = AsyncStorage.getItem("name");
+  const storedEmail = AsyncStorage.getItem("email");
 
   const handleSubmit = async () => {
     const recipeData = {
-      name,
+      name: storedName,
       recipeName,
       recipeDetails,
     };
-    //  req.body
+
     console.log(recipeData);
     try {
       const response = await fetch("http://localhost:5000/addRecipes", {
@@ -59,7 +61,6 @@ export default function AddRecipe() {
       Alert.alert("Error", "Something went wrong!");
     }
   };
-  console.log(getRecipes);
 
   //!this is called get method  this part is for the fetch the user posted data
   const fetchRecipes = async () => {
@@ -106,12 +107,6 @@ export default function AddRecipe() {
 
       {/* Form Section */}
       <View style={styles.inputFiled}>
-        <TextInput
-          style={styles.input}
-          placeholder="Your Name"
-          value={name}
-          onChangeText={setName}
-        />
         <TextInput
           style={styles.input}
           placeholder="Recipe Name"

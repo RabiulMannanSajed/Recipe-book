@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import recipeData from "../../data.json";
 import { FlatList } from "react-native-gesture-handler";
 
 interface Recipe {
