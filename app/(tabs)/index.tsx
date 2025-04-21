@@ -1,35 +1,44 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
-
+import { FlatList, StyleSheet, Text, View } from "react-native";
 interface Recipe {
   _id: string;
   name: string;
   recipeName: string;
   recipeDetails: string;
 }
-
+// data => banckend => fonte
 export default function HomeScreen() {
   const [recipes, setRecipe] = useState<Recipe[]>([]);
+
+  // ()=> {} arrow function
 
   useEffect(() => {
     fetch("http://localhost:5000/addRecipes")
       .then((res) => res.json())
       .then((data) => setRecipe(data));
   }, []);
+  console.log(recipes);
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Recipe List</Text>
       <FlatList
         data={recipes}
         keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.title}>{item.recipeName}</Text>
-            <Text style={styles.author}>By: {item.name}</Text>
-            <Text style={styles.details}>{item.recipeDetails}</Text>
-          </View>
-        )}
+        renderItem={({ item }) => {
+          console.log("Rendering item:", item); // See what’s in each item
+
+          return (
+            <View style={styles.card}>
+              <Text style={styles.title}>
+                {JSON.stringify(item.recipeName)}
+              </Text>
+              <Text style={styles.author}>By: {JSON.stringify(item.name)}</Text>
+              <Text style={styles.details}>
+                {JSON.stringify(item.recipeDetails)}
+              </Text>
+            </View>
+          );
+        }}
       />
     </View>
   );

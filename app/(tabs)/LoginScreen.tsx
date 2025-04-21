@@ -30,6 +30,7 @@ export default function LoginScreen({ navigation }: any) {
       }
 
       // Store email and name in AsyncStorage
+
       await AsyncStorage.setItem("email", data.email);
       await AsyncStorage.setItem("name", data.name);
 

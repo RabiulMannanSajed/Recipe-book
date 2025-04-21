@@ -8,6 +8,7 @@ export default function SignupScreen({ navigation }: any) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+
   const handleSignup = async () => {
     const user = {
       name,
@@ -16,7 +17,7 @@ export default function SignupScreen({ navigation }: any) {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/signup", {
+      const response = await fetch("http://localhost:5000/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,7 +46,7 @@ export default function SignupScreen({ navigation }: any) {
 
   return (
     <View style={{ padding: 20 }}>
-      <Text>Sign Up</Text>
+      <Text style={{ marginTop: 20, marginBottom: 20 }}>Sign Up</Text>
       <TextInput
         placeholder="Name"
         onChangeText={setName}
@@ -63,8 +64,10 @@ export default function SignupScreen({ navigation }: any) {
         style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
       <Button title="Sign Up" onPress={handleSignup} />
-      <Text style={{ marginTop: 20 }}>Already have an account?</Text>
-      <Button title="Login" onPress={() => router.push("/LoginScreen")} />
+      <Text style={{ marginTop: 20, marginBottom: 20 }}>
+        Already have an account?
+      </Text>
+      <Button title="Login " onPress={() => router.push("/LoginScreen")} />
     </View>
   );
 }
